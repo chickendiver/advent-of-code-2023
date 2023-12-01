@@ -1,3 +1,5 @@
+import re
+
 input = '''
 rhqrpdxsqhgxzknr2foursnrcfthree
 2bmckl
@@ -1001,30 +1003,51 @@ twoggvcnfmtrseven4dx
 ssevenhcltwoseven2cxrmxxcr
 '''
 
-print("Process Started")
+def index_of_numerics(string):
 
-# Break the lines into separate array values
-lines = input.split("\n")
+	index_words = [("one", "1", 3), ("two", "2", 3), ("three", "3", 5), ("four", "4", 4), ("five", "5", 4), ("six", "6", 3), ("seven", "7", 5), ("eight", "8", 5), ("nine", "9", 4)]
 
-total = 0
-for line in lines:
-	# Break the line into an array of characters and determine if each character is numeric
-	firstChar = ""
-	lastChar = ""
-	for char in line:
-		if char.isnumeric():
 
-			# If the first character has not been set yet, then this is the first numeric character. Set it to be the last as well for now.
-			if len(firstChar) == 0:
-				firstChar = char
-				lastChar = char
-			else:
-				# Incrementally update the last character as new characters are found
-				lastChar = char
+	lowercased_string = string.lower()
+	numeric_values = [] # An array of tuples containing the value and its index
 
-	# Use 0 here so that if firstChar and lastChar are empty, we still get a zero value
-	lineTotalString = "0" + firstChar + lastChar
-	print(lineTotalString)
-	total += int(lineTotalString)
+	# Find the indices of all numeric words
+	for index_word in index_words:
+		for match in re.finditer(index_word[0], lowercased_string):
+			numeric_values.append((index_word[1], match.start()))
 
-print(total)
+	# Find the indices of all number strings
+	for index_word in index_words:
+		for match in re.finditer(index_word[1], lowercased_string):
+			numeric_values.append((index_word[1], match.start()))
+
+	return numeric_values
+
+def main():
+	print("Process Started")
+
+	# Break the lines into separate array values
+	lines = input.split("\n")
+
+	total = 0
+	for line in lines:
+		# Break the line into an array of characters and determine if each character is numeric
+		first_char = ""
+		last_char = ""
+
+		numerics_indices = index_of_numerics(line)
+		if len(numerics_indices) > 0:
+			numerics_indices.sort(key=lambda a: a[1])
+			first_char = numerics_indices[0][0] # The 0th element is where we store the string value of the number
+			last_char = numerics_indices[-1][0] # The 0th element is where we store the string value of the number
+
+		# Use 0 here so that if firstChar and lastChar are empty, we still get a zero value
+		lineTotalString = "0" + first_char + last_char
+		print(lineTotalString)
+		total += int(lineTotalString)
+
+	print("Total: " + str(total))
+
+
+if __name__ == "__main__":
+	main()
